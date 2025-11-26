@@ -84,7 +84,7 @@ class Settings(BaseSettings):
     CLEANUP_RUN_INTERVAL: int = 3600  # How often to run the cleanup in seconds
     CLEANUP_FILE_MAX_AGE: int = 86400  # How old files can be before they are deleted in seconds
 
-    PY_CONTAINER_IMAGE: str = "jupyter/scipy-notebook:latest"
+    PY_CONTAINER_IMAGE: str = "code-interpreter-py:latest"
     R_CONTAINER_IMAGE: str = "jupyter/r-notebook:latest"
 
     @property

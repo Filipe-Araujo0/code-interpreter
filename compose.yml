@@ -7,11 +7,11 @@ services:
     container_name: code-interpreter
     restart: unless-stopped
     privileged: true
-    command: /app/.venv/bin/fastapi run app/main.py --host 0.0.0.0 --port 8000 --reload
+    command: /app/.venv/bin/fastapi run app/main.py --host 0.0.0.0 --port ${PORT:-8000} --reload
     env_file:
       - .env
     environment:
-      - HOST_PATH=$PWD
+      - HOST_PATH=/home/filipe/code-interpreter
     ports:
       - "${PORT:-8000}:${PORT:-8000}"
     healthcheck:
@@ -22,6 +22,7 @@ services:
       start_period: 10s
     volumes:
       - .:/app/
+      - .:/home/filipe/code-interpreter
       - venv:/app/.venv
       - /var/run/docker.sock:/var/run/docker.sock
 
