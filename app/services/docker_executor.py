@@ -1,9 +1,7 @@
-import docker
 from loguru import logger
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Literal, Set, Tuple
+from typing import Dict, List, Optional, Any, Literal, Set
 import time
-from docker.errors import APIError, ImageNotFound
 import asyncio
 import contextlib
 import fcntl
@@ -109,7 +107,7 @@ class DockerExecutor:
         Recursively scan a directory and collect file states.
         Returns a dictionary mapping relative file paths to their FileState objects.
         """
-        file_states = {}
+        file_states: Dict[str, FileState] = {}
 
         if not directory.exists():
             logger.warning(f"Directory {directory} does not exist")
@@ -299,6 +297,23 @@ class DockerExecutor:
             logger.info(f"Session directory contents: {list(session_path.glob('*'))}")
             logger.info(f"Code to execute: {code}")
 
+            # If there are files referenced from other sessions, ensure they
+            # also exist in this session directory with the expected name.
+            if files:
+                for f in files:
+                    try:
+                        content = f.get("content")
+                        filename = f.get("name") or f.get("filename")
+                        if content is None or not filename:
+                            continue
+
+                        target_path = session_path / filename
+                        if not target_path.exists():
+                            logger.info(f"Materializing referenced file in session {session_id}: {target_path}")
+                            target_path.write_bytes(content)
+                    except Exception as e:  # pragma: no cover - best-effort
+                        logger.warning(f"Failed to materialize input file: {e}")
+
             # Scan directory before execution to track file state
             logger.info(f"Scanning directory {session_path} before code execution")
             before_file_states = self._scan_directory(session_path)
@@ -308,6 +323,7 @@ class DockerExecutor:
                 try:
                     # Ensure the image is available
                     image_name = settings.LANGUAGE_CONTAINERS.get(lang)
+                    assert image_name, f"No container configured for language {lang}"
                     logger.info(f"Using container image: {image_name}")
 
                     try:

@@ -91,6 +91,13 @@ async def execute_code(
             for file_ref in request.files:
                 try:
                     file_info = await file_manager.get_file(file_ref.session_id, file_ref.id)
+                    # Ensure the file is materialized using the alias requested
+                    # by the caller (file_ref.name), so code can reference it
+                    # directly by the provided name.
+                    alias = file_ref.name or file_info.get("name")
+                    if alias:
+                        file_info["name"] = alias
+                        file_info["filename"] = alias
                     files.append(file_info)
                 except FileNotFoundError:
                     logger.warning(f"File not found: {file_ref.id}")
