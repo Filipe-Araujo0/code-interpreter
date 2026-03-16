@@ -19,3 +19,4 @@ project
 
 # Security related ignores
 .env
+GEMINI_NODE_TOOL_INTEGRATION.md
