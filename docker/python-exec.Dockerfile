@@ -13,7 +13,7 @@ RUN apt-get update \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# volta para o usuário padrão do notebook
+# switch back to the notebook default user
 USER $NB_UID:$NB_GID
 
 # copia o requirements e instala o resto via pip
@@ -21,4 +21,14 @@ COPY python_container_requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 
-# sudo docker build -t code-interpreter-py:latest -f docker/python-exec.Dockerfile .
+# Build the image; otherwise execution fails when the system is called and the image is missing.
+# sudo docker build \
+#   --label keep=true \
+#   -t code-interpreter-py:latest \
+#   -f docker/python-exec.Dockerfile \
+#   .
+# Create a stopped container so this image is not removed during periodic cleanup.
+# sudo docker create \
+#   --name keep-code-interpreter-py \
+#   --label keep=true \
+#   code-interpreter-py:latest

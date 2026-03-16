@@ -8,6 +8,8 @@ services:
     restart: unless-stopped
     privileged: true
     command: /app/.venv/bin/fastapi run app/main.py --host 0.0.0.0 --port ${PORT:-8000} --reload
+    depends_on:
+      - code-interpreter-py-keeper
     env_file:
       - .env
     environment:
@@ -25,6 +27,23 @@ services:
       - .:/home/filipe/code-interpreter
       - venv:/app/.venv
       - /var/run/docker.sock:/var/run/docker.sock
+
+  # Helper service responsible for building and preserving the internal image
+  # used to execute Python code inside code-interpreter.
+  code-interpreter-py-keeper:
+    # Image used by the internal container that runs Python code.
+    image: code-interpreter-py:latest
+    build:
+      context: .
+      dockerfile: docker/python-exec.Dockerfile
+      labels:
+        - keep=true # Prevents image removal by docker system prune using label!=keep=true
+    container_name: keep-code-interpreter-py
+    labels:
+      - keep=true # Keeps the stopped container as a prune-protected sentinel
+    # Runs and exits immediately; the container remains stopped, retaining the image.
+    command: ["true"]
+    restart: "no"
 
 volumes:
   venv:
