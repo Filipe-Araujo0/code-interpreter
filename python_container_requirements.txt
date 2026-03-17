@@ -233,7 +233,7 @@ ipython-pygments-lexers==1.1.1
 msgpack==1.1.0
 python-dotenv==1.1.0
 Brotli==1.1.0
-svglib==1.1.0
+svglib==1.2.1
 pylog==1.1
 html5lib==1.1
 cmudict==1.0.32
@@ -364,3 +364,8 @@ fastapi-cli==0.0.5
 setuptools==65.5.1
 pip==24.0
 wheel==0.43.0
+ezdxf
+ifcopenshell
+cadquery
+markdown==3.7
+xhtml2pdf==0.2.9

@@ -36,6 +36,8 @@ services:
     build:
       context: .
       dockerfile: docker/python-exec.Dockerfile
+      args:
+        ODA_DEB_URL: ${ODA_DEB_URL:-}
       labels:
         - keep=true # Prevents image removal by docker system prune using label!=keep=true
     container_name: keep-code-interpreter-py

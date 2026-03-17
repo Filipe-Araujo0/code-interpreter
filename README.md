@@ -118,6 +118,29 @@ The user code runs inside a separate Docker image (`code-interpreter-py:latest` 
 
 If you change the requirements file, rebuild the image (step 2) and restart the service (step 4).
 
+### Enabling ODA File Converter (DWG support for ezdxf)
+
+`ezdxf.addons.odafc` requires the ODA File Converter binary. This project supports installing ODA into the execution image at build time via `ODA_DEB_URL`.
+
+1) Download the official Linux `.deb` URL from ODA (after accepting their terms).
+2) Set `ODA_DEB_URL` in your `.env`:
+   ```ini
+   ODA_DEB_URL=https://www.opendesign.com/guestfiles/oda_file_converter/ODAFileConverter_<version>_amd64.deb
+   ```
+3) Rebuild the execution image:
+   ```bash
+   docker compose build code-interpreter-py-keeper
+   ```
+4) Verify inside the image:
+   ```bash
+   docker run --rm code-interpreter-py:latest sh -lc 'ODAFileConverter --help >/dev/null && echo OK'
+   ```
+
+The image defines:
+- `ODAFC_EXECUTABLE=/usr/local/bin/odafc-headless`
+
+This wrapper runs ODA via `xvfb-run`, so `ezdxf` can execute in headless/background Linux containers.
+
 
 ## Development
 
