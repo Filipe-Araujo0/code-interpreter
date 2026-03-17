@@ -31,13 +31,13 @@ RUN apt-get update \
 
 # Install ODA File Converter only when URL is provided (license/terms accepted externally).
 RUN if [ -n "$ODA_DEB_URL" ]; then \
-      wget -O /tmp/odafc.deb "$ODA_DEB_URL" \
-      && apt-get update \
-      && apt-get install -y --no-install-recommends /tmp/odafc.deb \
-      && rm -f /tmp/odafc.deb \
-      && rm -rf /var/lib/apt/lists/*; \
+    wget -O /tmp/odafc.deb "$ODA_DEB_URL" \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends /tmp/odafc.deb \
+    && rm -f /tmp/odafc.deb \
+    && rm -rf /var/lib/apt/lists/*; \
     else \
-      echo "Skipping ODA File Converter install (ODA_DEB_URL not set)."; \
+    echo "Skipping ODA File Converter install (ODA_DEB_URL not set)."; \
     fi
 
 # Wrapper used by ezdxf/odafc in headless Linux containers.

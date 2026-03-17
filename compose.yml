@@ -13,7 +13,7 @@ services:
     env_file:
       - .env
     environment:
-      - HOST_PATH=/home/filipe/code-interpreter
+      - HOST_PATH=/home/app/code-interpreter
     ports:
       - "${PORT:-8000}:${PORT:-8000}"
     healthcheck:
@@ -24,7 +24,7 @@ services:
       start_period: 10s
     volumes:
       - .:/app/
-      - .:/home/filipe/code-interpreter
+      - .:/home/app/code-interpreter
       - venv:/app/.venv
       - /var/run/docker.sock:/var/run/docker.sock
 
