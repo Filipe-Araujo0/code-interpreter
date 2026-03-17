@@ -67,6 +67,8 @@ class Settings(BaseSettings):
         "jpeg",
         "png",
         "gif",
+        # CAD / drawings
+        "dwg",
     }
 
     HOST_FILE_UPLOAD_PATH: Path = Path("uploads")  # Base directory for uploaded files
