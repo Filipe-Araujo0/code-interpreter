@@ -1,14 +1,18 @@
+import os
 from loguru import logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Set
+from dotenv import dotenv_values
+
+from .config_toml import load_settings_toml
 
 
 class Settings(BaseSettings):
     """Application settings."""
 
-    model_config = SettingsConfigDict(case_sensitive=True, env_file=".env", extra="ignore", env_prefix="")
+    model_config = SettingsConfigDict(case_sensitive=True, env_file=None, extra="ignore", env_prefix="")
 
     # Configuration
     HOST_PATH: Path = (
@@ -23,6 +27,11 @@ class Settings(BaseSettings):
         """Full path to the configuration directory."""
         return self.HOST_CONFIG_PATH if self.HOST_CONFIG_PATH.is_absolute() else self.HOST_PATH / self.HOST_CONFIG_PATH
 
+    @property
+    def CONFIG_PATH(self) -> Path:
+        """Compatibility alias for code that expects an absolute config path."""
+        return self.CONFIG_PATH_ABS
+
     # API settings
     PORT: int = 8000  # Port exposed from the container
     API_PREFIX: str = "/v1"  # API prefix
@@ -31,7 +40,7 @@ class Settings(BaseSettings):
     SANDBOX_MAX_EXECUTION_TIME: int = 300  # Docker container execution time limit in seconds
 
     # File management
-    FILE_MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
+    FILE_MAX_UPLOAD_SIZE: int = 32 * 1024 * 1024  # 32MiB
     FILE_ALLOWED_EXTENSIONS: Set[str] = {
         # Programming languages
         "py",
@@ -82,6 +91,11 @@ class Settings(BaseSettings):
             else self.HOST_PATH / self.HOST_FILE_UPLOAD_PATH
         )
 
+    @property
+    def UPLOAD_PATH(self) -> Path:
+        """Compatibility alias for code that expects an absolute upload path."""
+        return self.HOST_FILE_UPLOAD_PATH_ABS
+
     # File cleanup settings
     CLEANUP_RUN_INTERVAL: int = 3600  # How often to run the cleanup in seconds
     CLEANUP_FILE_MAX_AGE: int = 86400  # How old files can be before they are deleted in seconds
@@ -109,6 +123,28 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings() -> Settings:
     """Get cached settings instance."""
-    settings = Settings()
+    bootstrap_dotenv = dotenv_values(Path.cwd() / ".env")
+    bootstrap_host_path = Path(
+        os.environ.get("HOST_PATH") or bootstrap_dotenv.get("HOST_PATH") or "."
+    )
+    valid_fields = set(Settings.model_fields)
+    env_file_path = Path.cwd() / ".env"
+    merged_values = load_settings_toml(bootstrap_host_path, valid_fields)
+    merged_values.update(
+        {
+            key: value
+            for key, value in dotenv_values(env_file_path).items()
+            if key in valid_fields and value is not None
+        }
+    )
+    merged_values.update(
+        {
+            key: value
+            for key, value in os.environ.items()
+            if key in valid_fields
+        }
+    )
+
+    settings = Settings(**merged_values)
     logger.info(f"Settings: {settings.HOST_FILE_UPLOAD_PATH_ABS}")
     return settings

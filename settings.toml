@@ -1,0 +1,63 @@
+[api]
+port = 8000
+prefix = "/v1"
+
+[sandbox]
+max_execution_time = 300
+
+[files]
+max_upload_size = 33554432
+allowed_extensions = [
+    "py",
+    "c",
+    "cpp",
+    "java",
+    "php",
+    "rb",
+    "js",
+    "ts",
+    "txt",
+    "md",
+    "html",
+    "css",
+    "tex",
+    "json",
+    "csv",
+    "xml",
+    "docx",
+    "xlsx",
+    "pptx",
+    "pdf",
+    "ipynb",
+    "yml",
+    "yaml",
+    "zip",
+    "tar",
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "dwg",
+]
+
+[paths]
+host_config_path = "config"
+host_file_upload_path = "uploads"
+
+[cleanup]
+run_interval = 3600
+file_max_age = 86400
+
+[logging]
+level = "INFO"
+serialize = false
+
+[containers]
+py_image = "code-interpreter-py:latest"
+r_image = "jupyter/r-notebook:latest"
+
+[docker]
+max_concurrent_containers = 10
+memory_limit_mb = 512
+cpu_limit = 1.0
+network_enabled = false

@@ -1,10 +1,7 @@
 import aiosqlite
 from loguru import logger
 from datetime import datetime, timedelta, UTC
-from pathlib import Path
 from typing import List, Dict, Any
-
-from app.shared.const import CONFIG_PATH
 
 from ..shared.config import get_settings
 
@@ -32,7 +29,7 @@ CREATE INDEX IF NOT EXISTS idx_files_session_id ON files(session_id);
 
 class DatabaseManager:
     def __init__(self):
-        self.db_path = CONFIG_PATH / "database.db"
+        self.db_path = settings.CONFIG_PATH / "database.db"
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._connection = None
 

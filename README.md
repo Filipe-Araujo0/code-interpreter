@@ -22,7 +22,18 @@ https://github.com/user-attachments/assets/ca74549e-0e32-4659-81a8-158ee9132738
 
 ### Running the project
 
-Run the project with docker compose using `docker compose -f compose.prod.yml up`
+Run the project with docker compose using `docker compose up`
+
+Operational defaults live in [./settings.toml](./settings.toml). Local machine-specific overrides can go in `./settings.local.toml`, and `.env` or the shell environment remain the highest-precedence overrides.
+Configuration precedence is:
+
+1. Environment variables from the running process
+2. `.env`
+3. `settings.local.toml`
+4. `settings.toml`
+5. Defaults declared in [./app/shared/config.py](./app/shared/config.py)
+
+Keep secrets in `.env` or the shell environment. The TOML files are intended for non-sensitive operational defaults.
 
 It's possible to overwrite the default environment variables defined in [./app/shared/config.py](./app/shared/config.py) by creating a `.env` file in the root directory.
 By default the project will create two directories in the root directory: `./config` and `./uploads`.
@@ -40,7 +51,7 @@ By default, the API listens on the port defined by the `PORT` env (see `.env`) a
   ```ini
   PORT=3405  # or any other port
   ```
-- Both `compose.yml` (dev) and `compose.prod.yml` (prod) use `${PORT:-8000}` in the `ports` mapping and FastAPI `--port` flag, so changing `PORT` is enough.
+- `compose.yml` uses `${PORT:-8000}` in the `ports` mapping and FastAPI `--port` flag, so changing `PORT` is enough.
 - After changing it, restart:
   ```bash
   docker compose down
@@ -73,7 +84,7 @@ The code executor launches Docker containers and mounts a host directory into th
   ```
 - If you move the repo or run it as another user, update:
   - `HOST_PATH` in `.env` to the new absolute path, and
-  - the corresponding `volumes` entry in `compose.yml` (and/or `compose.prod.yml`) so that the same path exists inside the container.
+  - the corresponding `volumes` entry in `compose.yml` so that the same path exists inside the container.
 
 If `HOST_PATH` and the mounted path do not match, the internal Docker executor will fail with errors like `invalid mount config for type "bind": bind source path does not exist`.
 
@@ -104,8 +115,7 @@ The user code runs inside a separate Docker image (`code-interpreter-py:latest` 
    ```
 4) Restart the service (no rebuild of the API layer needed):
    ```bash
-   docker compose -f compose.prod.yml up -d
-   # or: docker compose up -d   # if you use compose.yml
+   docker compose up -d
    ```
 5) Quick sanity check that libs are in the image:
    ```bash

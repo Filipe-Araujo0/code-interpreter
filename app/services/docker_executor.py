@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from datetime import datetime
 import hashlib
 import mimetypes
-from app.shared.const import UPLOAD_PATH
 from app.utils.generate_id import generate_id
 import aiodocker
 import json
@@ -289,7 +288,7 @@ class DockerExecutor:
                     await self.initialize()
 
             # Create session directory before anything else
-            session_path: Path = UPLOAD_PATH / session_id
+            session_path: Path = settings.UPLOAD_PATH / session_id
             logger.info(f"Session path: {session_path}")
             session_path.mkdir(parents=True, exist_ok=True)
             # Log debug information

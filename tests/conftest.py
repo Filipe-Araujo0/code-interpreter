@@ -1,15 +1,16 @@
 import os
 from pathlib import Path
 
-from app.shared.const import CONFIG_PATH
-
 os.environ["HOST_PATH"] = str(Path.cwd())
 
 import pytest
+from app.shared.config import get_settings
 from app.services.database import db_manager
 from fastapi.testclient import TestClient
 from app.main import app
 from loguru import logger
+
+settings = get_settings()
 
 # We log to a file to avoid polluting the console with logs
 logger.remove()
@@ -24,7 +25,7 @@ logger.add(logs_path)
 async def init_db():
     """Initialize the database before running tests."""
     # Ensure the data directory exists
-    Path(CONFIG_PATH).mkdir(exist_ok=True, parents=True)
+    settings.CONFIG_PATH.mkdir(exist_ok=True, parents=True)
 
     # Initialize the database
     await db_manager.initialize()
@@ -33,7 +34,7 @@ async def init_db():
 
     # Cleanup after tests
     try:
-        (CONFIG_PATH / "test_database.db").unlink(missing_ok=True)
+        (settings.CONFIG_PATH / "test_database.db").unlink(missing_ok=True)
     except Exception as e:
         print(f"Failed to cleanup database: {e}")
 

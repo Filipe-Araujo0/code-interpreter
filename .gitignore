@@ -19,4 +19,5 @@ project
 
 # Security related ignores
 .env
+settings.local.toml
 GEMINI_NODE_TOOL_INTEGRATION.md
