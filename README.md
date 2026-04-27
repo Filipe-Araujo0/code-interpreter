@@ -104,18 +104,24 @@ LIBRECHAT_CODE_BASEURL=http(s)://host:port/v1/librechat # for local testing use 
 The user code runs inside a separate Docker image (`code-interpreter-py:latest` by default). Build it so the required Python libraries are present.
 
 1) (Optional) Edit `python_container_requirements.txt` (or the lighter `python_container_requirements_lite.txt`) to add/remove libs.
-2) Build the execution image:
+2) Rebuild the execution image through the compose keeper service so the image and sentinel container remain protected from `docker system prune`:
    ```bash
    cd ~/code-interpreter
-   docker build -t code-interpreter-py:latest -f docker/python-exec.Dockerfile .
+   docker compose build code-interpreter-py-keeper
+   ```
+   If you need the manual equivalent, keep the protection labels and recreate the keeper explicitly:
+   ```bash
+   docker build --label keep=true -t code-interpreter-py:latest -f docker/python-exec.Dockerfile .
+   docker rm -f keep-code-interpreter-py 2>/dev/null || true
+   docker run -d --name keep-code-interpreter-py --restart unless-stopped --label keep=true code-interpreter-py:latest sleep infinity
    ```
 3) Ensure the API knows which image to use. In `.env` (default already matches):
    ```ini
    PY_CONTAINER_IMAGE=code-interpreter-py:latest
    ```
-4) Restart the service (no rebuild of the API layer needed):
+4) Start or refresh the keeper and API service (no rebuild of the API layer needed):
    ```bash
-   docker compose up -d
+   docker compose up -d code-interpreter-py-keeper code-interpreter
    ```
 5) Quick sanity check that libs are in the image:
    ```bash

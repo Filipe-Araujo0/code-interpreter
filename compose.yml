@@ -42,10 +42,10 @@ services:
         - keep=true # Prevents image removal by docker system prune using label!=keep=true
     container_name: keep-code-interpreter-py
     labels:
-      - keep=true # Keeps the stopped container as a prune-protected sentinel
-    # Runs and exits immediately; the container remains stopped, retaining the image.
-    command: ["true"]
-    restart: "no"
+      - keep=true # Keeps the keeper itself protected from label-filtered prune
+    # Keep a live reference to the image so prune cannot classify it as unused.
+    command: ["sleep", "infinity"]
+    restart: unless-stopped
 
 volumes:
   venv:

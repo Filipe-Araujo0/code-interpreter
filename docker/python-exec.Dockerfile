@@ -69,8 +69,10 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 #   -t code-interpreter-py:latest \
 #   -f docker/python-exec.Dockerfile \
 #   .
-# Create a stopped container so this image is not removed during periodic cleanup.
-# sudo docker create \
+# Keep a running container so this image is not removed during periodic cleanup.
+# sudo docker run -d \
 #   --name keep-code-interpreter-py \
+#   --restart unless-stopped \
 #   --label keep=true \
-#   code-interpreter-py:latest
+#   code-interpreter-py:latest \
+#   sleep infinity
